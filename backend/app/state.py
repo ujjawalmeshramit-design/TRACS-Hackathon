@@ -39,6 +39,19 @@ override_locks: set[str] = set()
 # Data loading
 # ---------------------------------------------------------------------------
 
+def get_data_dir() -> Path:
+    candidates = [
+        Path(__file__).resolve().parent.parent / "data",         # backend/data
+        Path(__file__).resolve().parent.parent.parent / "data",  # repo_root/data
+        Path.cwd() / "data",
+        Path.cwd() / "backend" / "data",
+    ]
+    for p in candidates:
+        if p.exists() and (p / "junctions.json").exists():
+            return p
+    raise FileNotFoundError("Could not find data directory containing junctions.json")
+
+
 def load_data() -> None:
     """
     Read junctions.json and roads.json from the data/ folder and populate
@@ -48,8 +61,7 @@ def load_data() -> None:
     """
     global junctions, roads
 
-    # Resolve data directory relative to backend/app/ -> ../../data/
-    data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+    data_dir = get_data_dir()
 
     junctions_path = data_dir / "junctions.json"
     roads_path = data_dir / "roads.json"
@@ -64,7 +76,7 @@ def load_data() -> None:
         raw_roads = json.load(f)
     roads = {r["id"]: Road(**r) for r in raw_roads}
 
-    print(f"[State] Loaded {len(junctions)} junctions and {len(roads)} roads.")
+    print(f"[State] Loaded {len(junctions)} junctions and {len(roads)} roads from {data_dir}.")
 
 
 # ---------------------------------------------------------------------------

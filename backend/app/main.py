@@ -213,10 +213,34 @@ async def reset_data():
     return {"message": "All data has been reset to the initial state."}
 
 
-# ---------------------------------------------------------------------------
-# Serve Frontend Static Dashboard at /demo
-# ---------------------------------------------------------------------------
-frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
-if frontend_dir.exists():
-    app.mount("/demo", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+from fastapi.responses import FileResponse, RedirectResponse
+
+
+def get_frontend_dir() -> Path | None:
+    candidates = [
+        Path(__file__).resolve().parent.parent / "frontend",         # backend/frontend
+        Path(__file__).resolve().parent.parent.parent / "frontend",  # repo_root/frontend
+        Path.cwd() / "frontend",
+        Path.cwd() / "backend" / "frontend",
+    ]
+    for p in candidates:
+        if p.exists() and (p / "index.html").exists():
+            return p
+    return None
+
+
+frontend_dir = get_frontend_dir()
+
+if frontend_dir:
+    print(f"[Frontend] Serving static frontend from {frontend_dir}")
+    app.mount("/demo", StaticFiles(directory=str(frontend_dir), html=True), name="frontend_demo")
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend_root")
+else:
+    print("[Frontend] WARNING: Frontend directory not found!")
+
+    @app.get("/")
+    async def root():
+        """Fallback root when frontend is not found."""
+        return {"status": "TRACS API running", "docs": "/docs"}
+
 

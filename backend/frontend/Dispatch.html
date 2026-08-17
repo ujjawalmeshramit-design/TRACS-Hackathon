@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACS — Emergency Dispatch</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- TRACS Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="tracs-header">
+    <div class="header-left">
+      <div class="tracs-brand" onclick="window.location.href='index.html'">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-name">TRACS</span>
+          <span class="brand-desc">TRAFFIC CONTROL SYSTEM</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a class="nav-item" data-tab="overview" href="index.html">
+          <i class="fa-solid fa-house"></i> Overview
+        </a>
+        <a class="nav-item" data-tab="dashboard" href="dashboard.html">
+          <i class="fa-solid fa-border-all"></i> Dashboard
+        </a>
+        <a class="nav-item" data-tab="deployment" href="deployment.html">
+          <i class="fa-solid fa-user-shield"></i> Deployment
+        </a>
+        <a class="nav-item active" data-tab="dispatch" href="dispatch.html">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Dispatch
+        </a>
+        <a class="nav-item" data-tab="analytics" href="analytics.html">
+          <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="city-badge">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Nagpur</span>
+      </div>
+
+      <div class="user-avatar-circle">
+        <span>A</span>
+      </div>
+    </div>
+  </header>
+
+<main class="page-container active" id="page-dispatch">
+    <div class="view-title-row">
+      <div>
+        <h1 class="view-heading"><i class="fa-solid fa-truck-medical text-blue"></i> Emergency Vehicle Routing & Ambulance Dispatch</h1>
+        <p class="view-subtitle">AI-Powered Dijkstra pathfinding dynamically bypassing traffic jams for rapid response</p>
+      </div>
+
+      <div class="responder-tag">
+        <i class="fa-solid fa-shield-heart"></i> EMERGENCY RESPONSE MODULE
+      </div>
+    </div>
+
+    <div class="dispatch-layout-container">
+      
+      <!-- Left Panel: Dispatch Controls & Time Saved Comparison -->
+      <div class="dispatch-sidebar">
+        <div class="white-card">
+          <h3><i class="fa-solid fa-tower-broadcast text-blue"></i> Dispatch Unit Control</h3>
+          
+          <div class="form-group mt-16">
+            <label class="form-label">Vehicle Type</label>
+            <div class="emergency-vehicle-badge">
+              <i class="fa-solid fa-truck-medical text-blue"></i>
+              <span>Emergency Vehicle</span>
+              <span class="badge-status-pill green">Priority Active</span>
+            </div>
+          </div>
+
+          <div class="form-group mt-16">
+            <label class="form-label">Dispatch Origin (Hospital / Station)</label>
+            <select id="dispatch-src-dropdown" class="form-select-clean">
+              <option value="">Select Origin Junction...</option>
+            </select>
+          </div>
+
+          <div class="form-group mt-16">
+            <label class="form-label">Emergency Destination (Scene)</label>
+            <select id="dispatch-tgt-dropdown" class="form-select-clean">
+              <option value="">Select Target Junction...</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary btn-block btn-lg mt-20" onclick="calculateEmergencyRoute()">
+            <i class="fa-solid fa-diamond-turn-right"></i> Calculate AI Route & Dispatch
+          </button>
+        </div>
+
+        <!-- Response Time Comparison Card -->
+        <div class="white-card mt-16" id="dispatch-result-card">
+          <h3><i class="fa-solid fa-stopwatch text-blue"></i> Response Time Comparison</h3>
+          
+          <div class="time-comparison-flex">
+            <div class="time-box old">
+              <span class="t-lbl">Standard GPS Route</span>
+              <strong class="t-val" id="disp-old-time">27.8 min</strong>
+              <span class="t-sub text-red"><i class="fa-solid fa-car-burst"></i> Stuck in traffic</span>
+            </div>
+
+            <div class="time-arrow-divider">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+
+            <div class="time-box new">
+              <span class="t-lbl">TRACS AI Route</span>
+              <strong class="t-val text-green" id="disp-new-time">14.3 min</strong>
+              <span class="t-sub badge-pill-green" id="disp-saved-pct">48.5% Faster</span>
+            </div>
+          </div>
+
+          <div class="route-metrics-footer">
+            <div class="rm-item">
+              <span>Total Distance:</span>
+              <strong id="disp-dist">8.5 km</strong>
+            </div>
+            <div class="rm-item">
+              <span>Waypoints Cleared:</span>
+              <strong id="disp-waypoints">5 Junctions</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Live Leaflet Route Map -->
+      <div class="dispatch-map-holder">
+        <div class="map-floating-legend">
+          <span><span class="legend-line cyan"></span> TRACS AI Emergency Route</span>
+          <span><span class="legend-line red-dash"></span> Congested Road (Bypassed)</span>
+        </div>
+        <div id="dispatch-leaflet-map" class="dispatch-map-canvas"></div>
+      </div>
+
+    </div>
+  </main>
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
+  <!-- Backend API Bridge -->
+  <script src="api-bridge.js"></script>
+</body>
+</html>

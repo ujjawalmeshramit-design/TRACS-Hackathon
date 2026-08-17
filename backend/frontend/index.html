@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACS — Overview</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- TRACS Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="tracs-header">
+    <div class="header-left">
+      <div class="tracs-brand" onclick="window.location.href='index.html'">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-name">TRACS</span>
+          <span class="brand-desc">TRAFFIC CONTROL SYSTEM</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a class="nav-item active" data-tab="overview" href="index.html">
+          <i class="fa-solid fa-house"></i> Overview
+        </a>
+        <a class="nav-item" data-tab="dashboard" href="dashboard.html">
+          <i class="fa-solid fa-border-all"></i> Dashboard
+        </a>
+        <a class="nav-item" data-tab="deployment" href="deployment.html">
+          <i class="fa-solid fa-user-shield"></i> Deployment
+        </a>
+        <a class="nav-item" data-tab="dispatch" href="dispatch.html">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Dispatch
+        </a>
+        <a class="nav-item" data-tab="analytics" href="analytics.html">
+          <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="city-badge">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Nagpur</span>
+      </div>
+
+      <div class="user-avatar-circle">
+        <span>A</span>
+      </div>
+    </div>
+  </header>
+
+<main class="page-container active" id="page-overview">
+    
+    <!-- Hero Banner with 3D Traffic Network Graphic / Teaser -->
+    <div class="hero-card">
+      <div class="hero-left">
+        <span class="pill-tag">SMART CITY TRAFFIC CONTROL</span>
+        <h1 class="hero-heading">CONTROL TRAFFIC.<br/>RESPOND FASTER.</h1>
+        <p class="hero-subtext">
+          TRACS monitors real-time traffic across the city, identifies high-risk junctions, 
+          and empowers police to deploy faster where it matters most.
+        </p>
+
+        <div class="hero-btn-group">
+          <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+            ENTER CONTROL ROOM <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button class="btn btn-outline" onclick="scrollToSection('section-workflow')">
+            Explore the System <i class="fa-solid fa-arrow-down"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-map-widget">
+          <div class="widget-header">
+            <div class="widget-title">RISK LEVEL</div>
+            <div class="widget-legend">
+              <span><span class="dot red"></span> HIGH RISK</span>
+              <span><span class="dot amber"></span> MEDIUM RISK</span>
+              <span><span class="dot green"></span> LOW RISK</span>
+            </div>
+          </div>
+          
+          <!-- Interactive Mini Heatmap -->
+          <div id="overview-hero-map" class="hero-mini-map"></div>
+
+          <div class="widget-footer">
+            <div class="footer-stat">
+              <i class="fa-solid fa-circle-nodes"></i>
+              <div>
+                <strong>35</strong>
+                <span>JUNCTIONS</span>
+              </div>
+            </div>
+            <div class="footer-stat">
+              <i class="fa-solid fa-triangle-exclamation text-amber"></i>
+              <div>
+                <strong id="hero-stat-high">6</strong>
+                <span>HIGH RISK</span>
+              </div>
+            </div>
+            <div class="footer-stat">
+              <i class="fa-solid fa-user-shield text-blue"></i>
+              <div>
+                <strong>73</strong>
+                <span>OFFICERS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 Problem Cards ("TRAFFIC DOESN'T WAIT.") -->
+    <div class="section-container">
+      <h2 class="section-title text-center">TRAFFIC DOESN'T WAIT.</h2>
+      <div class="cards-grid-4">
+        <div class="feature-card">
+          <div class="icon-circle blue"><i class="fa-solid fa-car-burst"></i></div>
+          <h3>TRAFFIC CONGESTION</h3>
+          <p>Rising congestion leads to longer delays and frustrated commuters.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <h3>HIGH-RISK JUNCTIONS</h3>
+          <p>Certain junctions are more prone to accidents and law violations.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle purple"><i class="fa-solid fa-users"></i></div>
+          <h3>LIMITED RESOURCES</h3>
+          <p>Police resources are limited and can't be everywhere at once.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle amber"><i class="fa-solid fa-clock"></i></div>
+          <h3>SLOW RESPONSE</h3>
+          <p>Delays in response lead to escalated incidents and public dissatisfaction.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Step Process ("FROM TRAFFIC DATA TO ACTION.") -->
+    <div class="section-container" id="section-workflow">
+      <h2 class="section-title text-center">FROM TRAFFIC DATA TO ACTION.</h2>
+      <div class="steps-flow">
+        <div class="step-box">
+          <div class="step-icon-wrap"><i class="fa-solid fa-chart-line"></i></div>
+          <h4>ANALYZE</h4>
+          <p>AI-powered analytics identify congestion and high-risk zones.</p>
+        </div>
+        <i class="fa-solid fa-arrow-right step-arrow"></i>
+
+        <div class="step-box">
+          <div class="step-icon-wrap"><i class="fa-solid fa-user-shield"></i></div>
+          <h4>DEPLOY</h4>
+          <p>Deploy police units strategically where they're needed most.</p>
+        </div>
+        <i class="fa-solid fa-arrow-right step-arrow"></i>
+
+        <div class="step-box">
+          <div class="step-icon-wrap"><i class="fa-solid fa-scale-balanced"></i></div>
+          <h4>COMPARE</h4>
+          <p>Compare before & after impact and optimize future actions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live System Teasers ("ONE CONTROL SYSTEM. ONE CITY-WIDE VIEW.") -->
+    <div class="section-container">
+      <h2 class="section-title text-center">ONE CONTROL SYSTEM. ONE CITY-WIDE VIEW.</h2>
+      <div class="two-col-grid">
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <h4>CURRENT CONDITIONS <span class="dot-green"></span></h4>
+          </div>
+          <div class="preview-map-box">
+            <div id="overview-teaser-map" class="teaser-map"></div>
+          </div>
+          <div class="preview-card-footer">
+            <button class="link-btn" onclick="window.location.href='dashboard.html'">VIEW LIVE DASHBOARD & HEATMAP →</button>
+          </div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <h4>POLICE DEPLOYMENT <span class="dot-blue"></span></h4>
+          </div>
+          <div class="deployment-mini-list">
+            <div class="dep-mini-item">
+              <div>
+                <strong>JUNCTION 1 (Sadar)</strong> <span class="badge-mini red">HIGH RISK</span>
+                <p>Nagpur Central • 3 UNITS ON DUTY</p>
+              </div>
+              <span class="status-tag green">ON DUTY</span>
+            </div>
+            <div class="dep-mini-item">
+              <div>
+                <strong>JUNCTION 9 (Medical Square)</strong> <span class="badge-mini amber">MEDIUM RISK</span>
+                <p>Medical Zone • 2 UNITS</p>
+              </div>
+              <span class="status-tag blue">EN ROUTE</span>
+            </div>
+            <div class="dep-mini-item">
+              <div>
+                <strong>JUNCTION 22 (Amravati Rd)</strong> <span class="badge-mini green">LOW RISK</span>
+                <p>Highway Corridor • 1 UNIT</p>
+              </div>
+              <span class="status-tag gray">AVAILABLE</span>
+            </div>
+          </div>
+          <div class="preview-card-footer">
+            <button class="link-btn" onclick="window.location.href='deployment.html'">VIEW DEPLOYMENT →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom CTA Bar -->
+    <div class="cta-bar">
+      <div class="cta-skyline-bg"></div>
+      <h2>THE CITY IS MOVING. STAY AHEAD.</h2>
+      <button class="btn btn-primary btn-lg" onclick="window.location.href='dashboard.html'">
+        ENTER CONTROL ROOM →
+      </button>
+    </div>
+
+  </main>
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
+  <!-- Backend API Bridge -->
+  <script src="api-bridge.js"></script>
+</body>
+</html>
