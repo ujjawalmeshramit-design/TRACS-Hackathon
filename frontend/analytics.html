@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACS — Analytics</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- TRACS Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="tracs-header">
+    <div class="header-left">
+      <div class="tracs-brand" onclick="window.location.href='index.html'">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-name">TRACS</span>
+          <span class="brand-desc">TRAFFIC CONTROL SYSTEM</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a class="nav-item" data-tab="overview" href="index.html">
+          <i class="fa-solid fa-house"></i> Overview
+        </a>
+        <a class="nav-item" data-tab="dashboard" href="dashboard.html">
+          <i class="fa-solid fa-border-all"></i> Dashboard
+        </a>
+        <a class="nav-item" data-tab="deployment" href="deployment.html">
+          <i class="fa-solid fa-user-shield"></i> Deployment
+        </a>
+        <a class="nav-item" data-tab="dispatch" href="dispatch.html">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Dispatch
+        </a>
+        <a class="nav-item active" data-tab="analytics" href="analytics.html">
+          <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="city-badge">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Nagpur</span>
+      </div>
+
+      <div class="user-avatar-circle">
+        <span>A</span>
+      </div>
+    </div>
+  </header>
+
+<main class="page-container active" id="page-analytics">
+    <div class="view-title-row">
+      <div>
+        <h1 class="view-heading">Deployment Impact Analysis</h1>
+        <p class="view-subtitle">Comparing traffic conditions and risk levels before and after TRACS deployment</p>
+      </div>
+
+      <div class="date-range-picker-wrap">
+        <i class="fa-regular fa-calendar"></i>
+        <select id="analytics-date-picker" class="date-select-dropdown" onchange="changeAnalyticsDateRange(this.value)">
+          <option value="may2025">May 1 – May 31, 2025 (Current)</option>
+          <option value="apr2025">April 1 – April 30, 2025</option>
+          <option value="mar2025">March 1 – March 31, 2025</option>
+          <option value="q12025">Q1 2025 (Jan – Mar 2025)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Analytics 3-Col Top Grid (Table + Bar Chart + Key Impact Summary) -->
+    <div class="analytics-top-grid">
+      
+      <!-- Col 1: Junction Condition Comparison Table -->
+      <div class="white-card">
+        <div class="card-head-row">
+          <div class="icon-title">
+            <i class="fa-solid fa-scale-balanced text-blue"></i>
+            <h3>JUNCTION CONDITION COMPARISON</h3>
+          </div>
+        </div>
+
+        <table class="comparison-table-clean">
+          <thead>
+            <tr>
+              <th>Junction</th>
+              <th>Before Deployment<br/><small>Condition • Risk Score</small></th>
+              <th>After Deployment<br/><small>Condition • Risk Score</small></th>
+            </tr>
+          </thead>
+          <tbody id="analytics-comparison-tbody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+
+        <div class="table-bottom-link">
+          <a href="javascript:void(0)" onclick="toggleViewAllAnalyticsJunctions()">View all junctions →</a>
+        </div>
+      </div>
+
+      <!-- Col 2: City-Wide Risk Level Comparison (Bar Chart + Avg Risk Score) -->
+      <div class="white-card">
+        <div class="card-head-row">
+          <h3>CITY-WIDE RISK LEVEL COMPARISON</h3>
+          <div class="bar-chart-legend">
+            <span><span class="box-legend blue"></span> Before Deployment</span>
+            <span><span class="box-legend green"></span> After Deployment</span>
+          </div>
+        </div>
+
+        <div class="bar-chart-wrapper">
+          <canvas id="chart-analytics-grouped-bar"></canvas>
+        </div>
+
+        <hr class="card-hr"/>
+
+        <div class="avg-score-section">
+          <h4>AVERAGE RISK SCORE</h4>
+          <div class="avg-score-flex">
+            <div class="score-side before">
+              <strong>68</strong>
+              <span>Before Deployment</span>
+            </div>
+
+            <div class="sparkline-middle">
+              <canvas id="chart-avg-risk-line" width="160" height="45"></canvas>
+              <div class="improvement-pill green">
+                <i class="fa-solid fa-arrow-down"></i> 33 Point Improvement
+              </div>
+            </div>
+
+            <div class="score-side after">
+              <strong class="text-green">35</strong>
+              <span>After Deployment</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: Key Impact Summary (4 Metric Cards with Sparklines) -->
+      <div class="white-card">
+        <div class="card-head-row">
+          <div class="icon-title">
+            <i class="fa-regular fa-star text-blue"></i>
+            <h3>KEY IMPACT SUMMARY</h3>
+          </div>
+        </div>
+
+        <div class="impact-cards-stack">
+          <!-- Metric 1 -->
+          <div class="impact-metric-row green">
+            <div class="imp-icon green"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="imp-data">
+              <span class="imp-lbl">AVERAGE RISK REDUCTION</span>
+              <div class="imp-val-line">
+                <strong class="imp-big text-green">48.5%</strong>
+                <span class="imp-small">68 ➔ 35</span>
+              </div>
+            </div>
+            <div class="imp-sparkline">
+              <span class="badge-trend green"><i class="fa-solid fa-caret-down"></i> <i class="fa-solid fa-arrow-down"></i> 48.5%</span>
+            </div>
+          </div>
+
+          <!-- Metric 2 -->
+          <div class="impact-metric-row red">
+            <div class="imp-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="imp-data">
+              <span class="imp-lbl">HIGH-RISK JUNCTIONS REDUCED</span>
+              <div class="imp-val-line">
+                <strong class="imp-big text-red">12 ➔ 4</strong>
+                <span class="imp-small">67% reduction</span>
+              </div>
+            </div>
+            <div class="imp-sparkline">
+              <span class="badge-trend green"><i class="fa-solid fa-arrow-trend-down"></i> -67.0%</span>
+            </div>
+          </div>
+
+          <!-- Metric 3 -->
+          <div class="impact-metric-row blue">
+            <div class="imp-icon blue"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="imp-data">
+              <span class="imp-lbl">OFFICER COVERAGE IMPROVEMENT</span>
+              <div class="imp-val-line">
+                <strong class="imp-big text-blue">41.2%</strong>
+                <span class="imp-small">From 62% to 87.2%</span>
+              </div>
+            </div>
+            <div class="imp-sparkline">
+              <span class="badge-trend blue"><i class="fa-solid fa-arrow-trend-up"></i> +41.2%</span>
+            </div>
+          </div>
+
+          <!-- Metric 4 -->
+          <div class="impact-metric-row amber">
+            <div class="imp-icon amber"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="imp-data">
+              <span class="imp-lbl">RESPONSE TIME IMPROVEMENT</span>
+              <div class="imp-val-line">
+                <strong class="imp-big text-amber">31.6%</strong>
+                <span class="imp-small">From 7.8 min to 5.3 min</span>
+              </div>
+            </div>
+            <div class="imp-sparkline">
+              <span class="badge-trend amber"><i class="fa-solid fa-bolt"></i> -2.5 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Dual Map Comparison Row (Matching Bottom of Image 1) -->
+    <div class="dual-heatmaps-grid mt-24">
+      
+      <!-- Dual Map 1: Before -->
+      <div class="dual-map-panel">
+        <div class="dual-map-header red">
+          <span class="map-tag red">BEFORE DEPLOYMENT</span>
+          <span class="map-sub">Higher risk concentration across the city</span>
+        </div>
+        <div id="analytics-map-before" class="dual-map-frame"></div>
+      </div>
+
+      <!-- Dual Map 2: Projected After -->
+      <div class="dual-map-panel">
+        <div class="dual-map-header green">
+          <span class="map-tag green">PROJECTED AFTER DEPLOYMENT</span>
+          <span class="map-sub">Improved conditions city-wide with fewer high-risk areas</span>
+        </div>
+        <div id="analytics-map-after" class="dual-map-frame"></div>
+      </div>
+
+    </div>
+  </main>
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
+  <!-- Backend API Bridge -->
+  <script src="api-bridge.js"></script>
+</body>
+</html>

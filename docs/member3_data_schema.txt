@@ -1,0 +1,67 @@
+Hey! Here is the data schema we need for the backend. 
+Please generate two JSON files, `junctions.json` and `roads.json`, matching these exact formats.
+
+=========================================
+1. junctions.json
+=========================================
+This file should contain a list of 30-50 real Nagpur junctions (like Sadar, Sitabuldi, Dharampeth, Vardhaman Nagar, Sneh Nagar, etc.) with realistic starting values.
+
+Format Example:
+[
+  {
+    "id": "J1",
+    "name": "Sadar Junction",
+    "lat": 21.1639,
+    "lng": 79.0805,
+    "traffic_volume": 450,       // Current vehicle count (e.g. 0 to 1000)
+    "max_traffic_volume": 1000,  // Maximum road capacity
+    "accident_history": 8,       // Number of accidents in the past year
+    "max_accident_history": 20,  // Limit for normalization (e.g., 20 or 25)
+    "speed_limit": 60,           // Speed limit in km/h
+    "current_speed": 42,         // Current average speed of traffic in km/h
+    "baseline_police": 2,        // Current static/fixed police officer count
+    "active_police": 2,          // Active police count (will start equal to baseline_police)
+    "has_active_incident": false // Set to false initially
+  },
+  {
+    "id": "J2",
+    "name": "Sitabuldi Square",
+    "lat": 21.1466,
+    "lng": 79.0888,
+    "traffic_volume": 780,
+    "max_traffic_volume": 1200,
+    "accident_history": 15,
+    "max_accident_history": 20,
+    "speed_limit": 50,
+    "current_speed": 18,         // Heavy traffic, low speed
+    "baseline_police": 3,
+    "active_police": 3,
+    "has_active_incident": false
+  }
+  // Add more junctions here...
+]
+
+=========================================
+2. roads.json
+=========================================
+This file defines connections between junctions to build our pathfinding graph for emergency routing.
+
+Format Example:
+[
+  {
+    "id": "R1",
+    "source": "J1",              // Must match the "id" of the source junction
+    "target": "J2",              // Must match the "id" of the target junction
+    "distance_km": 1.8,          // Distance between the two junctions in kilometers
+    "current_speed": 35          // Current average traffic speed on this specific road segment
+  },
+  {
+    "id": "R2",
+    "source": "J2",
+    "target": "J3",
+    "distance_km": 2.5,
+    "current_speed": 15          // Slow road segment due to traffic
+  }
+  // Add more road segments here...
+]
+=========================================

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACS — Deployment</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- TRACS Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="tracs-header">
+    <div class="header-left">
+      <div class="tracs-brand" onclick="window.location.href='index.html'">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-name">TRACS</span>
+          <span class="brand-desc">TRAFFIC CONTROL SYSTEM</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a class="nav-item" data-tab="overview" href="index.html">
+          <i class="fa-solid fa-house"></i> Overview
+        </a>
+        <a class="nav-item" data-tab="dashboard" href="dashboard.html">
+          <i class="fa-solid fa-border-all"></i> Dashboard
+        </a>
+        <a class="nav-item active" data-tab="deployment" href="deployment.html">
+          <i class="fa-solid fa-user-shield"></i> Deployment
+        </a>
+        <a class="nav-item" data-tab="dispatch" href="dispatch.html">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Dispatch
+        </a>
+        <a class="nav-item" data-tab="analytics" href="analytics.html">
+          <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="city-badge">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Nagpur</span>
+      </div>
+
+      <div class="user-avatar-circle">
+        <span>A</span>
+      </div>
+    </div>
+  </header>
+
+<main class="page-container active" id="page-deployment">
+    <div class="view-title-row">
+      <div>
+        <h1 class="view-heading"><i class="fa-solid fa-user-shield text-blue"></i> Officer Deployment</h1>
+        <p class="view-subtitle">Deploy officers to high-risk junctions</p>
+      </div>
+
+      <div class="view-controls-right">
+        <button class="btn btn-primary" onclick="runGreedyOptimizer()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Run AI Optimization
+        </button>
+      </div>
+    </div>
+
+    <!-- Available Officers Summary Row -->
+    <div class="summary-stat-cards-4">
+      <div class="stat-card">
+        <div class="stat-icon-circle blue-light"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-text-wrap">
+          <span class="stat-title">Total Officers</span>
+          <span class="stat-value" id="dep-stat-total">73</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle blue-solid"><i class="fa-solid fa-user-check"></i></div>
+        <div class="stat-text-wrap">
+          <span class="stat-title">Currently Deployed</span>
+          <span class="stat-value" id="dep-stat-deployed">52</span>
+          <span class="stat-sub" id="dep-stat-deployed-pct">71.2% of total</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle green-light"><i class="fa-solid fa-user-plus"></i></div>
+        <div class="stat-text-wrap">
+          <span class="stat-title">Available Reserve</span>
+          <span class="stat-value" id="dep-stat-avail">21</span>
+          <span class="stat-sub" id="dep-stat-avail-pct">28.8% of total</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-circle amber-light"><i class="fa-solid fa-star"></i></div>
+        <div class="stat-text-wrap">
+          <span class="stat-title">High Priority Available</span>
+          <span class="stat-value" id="dep-stat-high-priority">8</span>
+          <span class="stat-sub">11.0% of total</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Deployment Grid (Needing Officers + Right Summary) -->
+    <div class="deployment-layout-grid">
+      
+      <!-- Left: Junctions Needing Officers Cards -->
+      <div class="dep-left-cards-area">
+        <div class="section-header-row">
+          <h3>Junctions Needing Officers</h3>
+          <a href="javascript:void(0)" class="view-map-link" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-map"></i> View Map
+          </a>
+        </div>
+
+        <div class="needing-officers-grid" id="dep-needing-officers-grid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="load-more-center">
+          <a href="javascript:void(0)" class="load-more-link" onclick="alert('All 35 junctions loaded')">
+            Load More Junctions <i class="fa-solid fa-chevron-down"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Deployment Summary Card -->
+      <div class="dep-right-summary-area">
+        <div class="white-card">
+          <h3>Deployment Summary</h3>
+          <div class="summary-line-items">
+            <div class="summary-line red">
+              <div class="line-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="line-text">
+                <span>Junctions Needing Officers</span>
+                <strong id="dep-sum-needing">12</strong>
+              </div>
+              <span class="dep-badge red"><i class="fa-solid fa-circle-exclamation"></i> Deficit</span>
+            </div>
+
+            <div class="summary-line green">
+              <div class="line-icon green"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="line-text">
+                <span>Junctions with Sufficient Coverage</span>
+                <strong id="dep-sum-sufficient">23</strong>
+              </div>
+              <span class="dep-badge green"><i class="fa-solid fa-shield-halved"></i> Covered</span>
+            </div>
+
+            <div class="summary-line amber">
+              <div class="line-icon amber"><i class="fa-solid fa-users"></i></div>
+              <div class="line-text">
+                <span>Total Additional Officers Required</span>
+                <strong id="dep-sum-additional">24</strong>
+              </div>
+              <span class="dep-badge amber"><i class="fa-solid fa-user-plus"></i> Needed</span>
+            </div>
+          </div>
+
+          <hr class="card-hr"/>
+
+          <h4>Quick Stats</h4>
+          <div class="quick-stats-list">
+            <div class="qs-item"><span class="dot red"></span> High Risk Junctions <strong id="qs-high">6</strong></div>
+            <div class="qs-item"><span class="dot amber"></span> Medium Risk Junctions <strong id="qs-med">12</strong></div>
+            <div class="qs-item"><span class="dot green"></span> Low Risk Junctions <strong id="qs-low">17</strong></div>
+            <div class="qs-item"><span class="dot blue"></span> Total Monitored Junctions <strong>35</strong></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Deployment Activity Table (Bottom of Image 3) -->
+    <div class="white-card mt-24">
+      <h3>Recent Deployment Activity</h3>
+      <table class="data-table-clean">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Activity</th>
+            <th>Status</th>
+            <th>Officer ID</th>
+            <th>By</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody id="dep-activity-tbody">
+          <!-- Rendered dynamically -->
+        </tbody>
+      </table>
+      <div class="table-footer-link">
+        <a href="javascript:void(0)">View All Activity ></a>
+      </div>
+    </div>
+  </main>
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
+  <!-- Backend API Bridge -->
+  <script src="api-bridge.js"></script>
+</body>
+</html>

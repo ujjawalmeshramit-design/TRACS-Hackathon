@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACS — Dashboard</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- TRACS Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="tracs-header">
+    <div class="header-left">
+      <div class="tracs-brand" onclick="window.location.href='index.html'">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-name">TRACS</span>
+          <span class="brand-desc">TRAFFIC CONTROL SYSTEM</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a class="nav-item" data-tab="overview" href="index.html">
+          <i class="fa-solid fa-house"></i> Overview
+        </a>
+        <a class="nav-item active" data-tab="dashboard" href="dashboard.html">
+          <i class="fa-solid fa-border-all"></i> Dashboard
+        </a>
+        <a class="nav-item" data-tab="deployment" href="deployment.html">
+          <i class="fa-solid fa-user-shield"></i> Deployment
+        </a>
+        <a class="nav-item" data-tab="dispatch" href="dispatch.html">
+          <i class="fa-solid fa-truck-medical"></i> Emergency Dispatch
+        </a>
+        <a class="nav-item" data-tab="analytics" href="analytics.html">
+          <i class="fa-solid fa-chart-column"></i> Analytics
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="city-badge">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Nagpur</span>
+      </div>
+
+      <div class="user-avatar-circle">
+        <span>A</span>
+      </div>
+    </div>
+  </header>
+
+<main class="page-container active" id="page-dashboard">
+    <div class="view-title-row">
+      <div>
+        <h1 class="view-heading">Current Traffic Conditions</h1>
+        <p class="view-subtitle">Real-time overview of key junctions across Nagpur City</p>
+      </div>
+
+      <div class="view-controls-right">
+        <!-- Map / Grid View Switcher -->
+        <div class="view-mode-toggle">
+          <button class="toggle-btn" id="btn-mode-cards" onclick="setDashboardMode('cards')">
+            <i class="fa-solid fa-table-cells"></i> Cards View
+          </button>
+          <button class="toggle-btn active" id="btn-mode-map" onclick="setDashboardMode('map')">
+            <i class="fa-solid fa-map-location-dot"></i> Live Heatmap
+          </button>
+        </div>
+
+        <div class="last-updated-text">
+          <span>Last updated: 10:24 AM</span>
+          <button class="icon-refresh-btn" onclick="refreshDashboardData()" title="Refresh data">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL INTERACTIVE HEATMAP VIEW CONTAINER (When Heatmap toggle is active) -->
+    <div class="dashboard-map-wrapper" id="dashboard-fullscreen-map-wrap">
+      <div class="map-controls-floating">
+        <button class="btn btn-sm btn-primary" onclick="simulateAccidentAtSelected()">
+          <i class="fa-solid fa-car-burst"></i> Simulate Accident at Selected
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="runGreedyOptimizer()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Run AI Optimization
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="resetDemoState()">
+          <i class="fa-solid fa-rotate-left"></i> Reset Demo
+        </button>
+      </div>
+      <div id="dashboard-interactive-map" class="full-map-canvas"></div>
+    </div>
+
+    <!-- DASHBOARD MAIN GRID (Cards + Side Analytics) -->
+    <div class="dashboard-main-grid" id="dashboard-cards-main-wrap">
+      
+      <!-- Left Column: Categorized Traffic Rows & Expanded Detail Drawer -->
+      <div class="dash-content-left">
+        
+        <!-- Categorized Traffic Rows (Teammate Feedback) -->
+        <div class="traffic-categories-container">
+          
+          <!-- ROW 1: Heavy Traffic (Critical) -->
+          <div class="traffic-row-section red-accent">
+            <div class="row-header">
+              <span class="indicator red"></span>
+              <h3>Heavy Traffic & High-Risk Intersections</h3>
+              <span class="count-tag red" id="dash-count-heavy">0 Locations</span>
+            </div>
+            <div class="cards-scroller-row" id="dash-heavy-cards">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- ROW 2: Moderate Traffic -->
+          <div class="traffic-row-section amber-accent">
+            <div class="row-header">
+              <span class="indicator amber"></span>
+              <h3>Moderate Traffic Intersections</h3>
+              <span class="count-tag amber" id="dash-mod-cards-count">0 Locations</span>
+            </div>
+            <div class="cards-scroller-row" id="dash-mod-cards">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- ROW 3: Light Traffic -->
+          <div class="traffic-row-section green-accent">
+            <div class="row-header">
+              <span class="indicator green"></span>
+              <h3>Light Traffic & Smooth Flow Intersections</h3>
+              <span class="count-tag green" id="dash-light-cards-count">0 Locations</span>
+            </div>
+            <div class="cards-scroller-row" id="dash-light-cards">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Selected Junction Expanded Telemetry Panel (Bottom Left of Image 2) -->
+        <div class="junction-telemetry-panel" id="telemetry-panel">
+          <div class="panel-header">
+            <div class="panel-title-area">
+              <div class="crosshair-icon"><i class="fa-solid fa-location-crosshairs"></i></div>
+              <div>
+                <div class="panel-name-row">
+                  <h3 id="panel-j-name">Main St & 5th Ave</h3>
+                  <span class="badge-danger" id="panel-j-badge">HIGH RISK</span>
+                </div>
+                <span class="panel-sub-text" id="panel-j-district">Downtown District • Junction ID: JN-1001</span>
+              </div>
+            </div>
+            <button class="collapse-btn">Collapse <i class="fa-solid fa-chevron-up"></i></button>
+          </div>
+
+          <div class="panel-content-grid">
+            <!-- Box 1: Deployment & Donut -->
+            <div class="telemetry-box">
+              <div class="box-title"><i class="fa-solid fa-user-shield"></i> Deployment</div>
+              <div class="donut-flex">
+                <div class="donut-stats-text">
+                  <span class="stat-lbl">Officers Deployed</span>
+                  <div class="stat-num-row"><strong id="panel-officers">12</strong> <span class="dim">/ 16</span></div>
+                  <span class="stat-lbl mt-8">Units</span>
+                  <div class="stat-num-row"><strong id="panel-units">4</strong> <span class="dim">/ 6</span></div>
+                </div>
+                <div class="donut-chart-holder">
+                  <canvas id="chart-telemetry-donut" width="90" height="90"></canvas>
+                  <div class="donut-center-pct" id="panel-donut-pct">75%<br/><small>Deployment</small></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Box 2: Traffic Flow 24 Hours -->
+            <div class="telemetry-box wide">
+              <div class="box-title"><i class="fa-solid fa-chart-line"></i> Traffic Flow (Last 24 Hours)</div>
+              <div class="flow-chart-wrap">
+                <canvas id="chart-telemetry-flow"></canvas>
+              </div>
+            </div>
+
+            <!-- Box 3: Incident History -->
+            <div class="telemetry-box">
+              <div class="box-title"><i class="fa-solid fa-clock-rotate-left"></i> Incident History (Last 7 Days)</div>
+              <div class="incident-timeline-list" id="panel-incident-list">
+                <div class="incident-row">
+                  <i class="fa-solid fa-triangle-exclamation icon-red"></i>
+                  <div class="inc-desc">
+                    <strong>Traffic Collision</strong>
+                    <span>May 18, 2025 • 4:32 PM</span>
+                  </div>
+                  <span class="tag-pill red">High</span>
+                </div>
+                <div class="incident-row">
+                  <i class="fa-solid fa-triangle-exclamation icon-amber"></i>
+                  <div class="inc-desc">
+                    <strong>Signal Malfunction</strong>
+                    <span>May 17, 2025 • 9:15 AM</span>
+                  </div>
+                  <span class="tag-pill amber">Medium</span>
+                </div>
+                <div class="incident-row">
+                  <i class="fa-solid fa-circle-check icon-green"></i>
+                  <div class="inc-desc">
+                    <strong>Road Obstruction</strong>
+                    <span>May 16, 2025 • 6:40 PM</span>
+                  </div>
+                  <span class="tag-pill green">Low</span>
+                </div>
+              </div>
+              <a href="javascript:void(0)" class="view-all-link">View All Incidents ></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Overall Analytics Donut & Top 5 High-Risk List -->
+      <div class="dash-content-right">
+        
+        <!-- Overall Analytics Card -->
+        <div class="white-card">
+          <h3>Overall Analytics</h3>
+          <p class="card-subtitle">Junctions by Risk Level</p>
+
+          <div class="overall-donut-wrapper">
+            <canvas id="chart-overall-risk" width="180" height="180"></canvas>
+            <div class="overall-donut-center">
+              <strong id="stat-total-junctions">35</strong>
+              <span>Total<br/>Junctions</span>
+            </div>
+          </div>
+
+          <div class="risk-breakdown-legend">
+            <div class="legend-row">
+              <div class="legend-dot-label"><span class="dot red"></span> High Risk</div>
+              <strong id="legend-count-high">6 (17%)</strong>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot-label"><span class="dot amber"></span> Medium Risk</div>
+              <strong id="legend-count-medium">12 (34%)</strong>
+            </div>
+            <div class="legend-row">
+              <div class="legend-dot-label"><span class="dot green"></span> Low Risk</div>
+              <strong id="legend-count-low">17 (49%)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top 5 High-Risk Junctions Card -->
+        <div class="white-card">
+          <h3>Top 5 High-Risk Junctions</h3>
+          <div class="top-ranked-list" id="top-5-ranked-container">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <button class="btn btn-outline btn-block mt-16" onclick="window.location.href='deployment.html'">
+            <i class="fa-solid fa-shield-halved"></i> View All Junctions <i class="fa-solid fa-chevron-right ml-auto"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+<!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
+  <!-- Backend API Bridge -->
+  <script src="api-bridge.js"></script>
+</body>
+</html>
