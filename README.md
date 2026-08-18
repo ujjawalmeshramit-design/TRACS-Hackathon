@@ -169,18 +169,9 @@ Open your web browser and navigate to:
 
 ---
 
-## 🌐 Cloud Deployment Guide (Render.com)
+## 🌐 Live Demo
 
-To deploy TRACS live on the cloud:
-
-1. Push your repository to **GitHub**.
-2. Go to **[Render.com](https://render.com/)** and create a **New Web Service**.
-3. Select your repository and configure:
-   - **Environment**: `Python 3`
-   - **Root Directory**: `backend`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. Click **Create Web Service**. Your live production URL will be ready at `https://<your-app>.onrender.com/demo/`.
+ live production URL `https://tracs-hackathon.onrender.com`.
 
 ---
 
